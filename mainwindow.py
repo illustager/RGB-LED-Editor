@@ -70,7 +70,6 @@ class MainWindow(Ui_MainWindow):
 		self.menuExport.triggered.connect(self.onExportTriggered)
 		# 颜色选择
 		self.colorButton.clicked.connect(self.onColorButtonClicked)
-		self.sameButton.clicked.connect(self.onColorSameButtonClicked)
 		self.fillButton.clicked.connect(self.onColorFillButtonClicked)
 		self.clearButton.clicked.connect(self.onColorClearButtonClicked)
 		# 结果复制
@@ -78,44 +77,6 @@ class MainWindow(Ui_MainWindow):
 		# 像素着色
 		for i, p in enumerate(self.pixels):
 			p.mousePressEvent = lambda _, p=p, i=i: self.onPixelColorChanged(p, i)
-		# 换页
-		self.pageBox.currentIndexChanged.connect(self.onPageBoxChanged)
-		# 属性变化
-		self.spinBox_lengthy.valueChanged.connect(
-			lambda v, p=self.spinBox_lengthy:
-				self.onPropertyChange(p, v)
-		)
-		self.spinBox_interval.valueChanged.connect(
-			lambda v, p=self.spinBox_interval:
-				self.onPropertyChange(p, v)
-		)
-		self.spinBox_times.valueChanged.connect(
-			lambda v, p=self.spinBox_times:
-				self.onPropertyChange(p, v)
-		)
-		self.spinBox_sectionSt.valueChanged.connect(
-			lambda v, p=self.spinBox_sectionSt:
-				self.onPropertyChange(p, v)
-		)
-		self.spinBox_sectionEd.valueChanged.connect(
-			lambda v, p=self.spinBox_sectionEd:
-				self.onPropertyChange(p, v)
-		)
-		self.spinBox_sectionSp.valueChanged.connect(
-			lambda v, p=self.spinBox_sectionSp:
-				self.onPropertyChange(p, v)
-		)
-		self.directionButton.checkedChanged.connect(
-			lambda v, p=self.directionButton:
-				self.onPropertyChange(p, v)
-		)
-		self.typeBox.currentIndexChanged.connect(
-			lambda i, p=self.typeBox:
-				self.onPropertyChange(p, i)
-		)
-
-		# -------------------- 其它 --------------------
-		self.addPage() # 添加第一页
 
 	def setupUi(self, window: QMainWindow) -> None:
 		super().setupUi(window) # 依照 UI 设计文件设置 UI
@@ -159,123 +120,7 @@ class MainWindow(Ui_MainWindow):
 		self.spinBox_colorV.setMinimum(-255)
 		self.spinBox_colorV.setValue(0)
 
-		self.directionButton.setOnText('Up')
-		self.directionButton.setOffText('Down')
-
-		self.typeBox.addItems(['Solid', 'Fading', 'Cycle', 'Floating', 'Growing'])
-
-		self.spinBox_sectionSp.setMaximum(100)
-		self.spinBox_sectionEd.setMaximum(100)
-		self.spinBox_sectionSt.setMaximum(100)
-
-		self.spinBox_lengthy.setMaximum(100000)
-		self.spinBox_interval.setMaximum(100000)
-		self.spinBox_times.setMaximum(100000)
-		# 换页 UI
-		self.pageBox.addItem('<new>')
-		self.pageBox.setCurrentIndex(-1)
-
-		self.disableProperty()
-
 	# ==================== 方法 ====================
-	# 添加页面
-	def addPage(self, new_action = None) -> None:
-		self.pageBox.currentIndexChanged.disconnect()
-
-		if new_action is not None:
-			self.actions.append(new_action)
-		else:
-			self.actions.append(deepcopy(self.defaultSolidAction))
-		self.actionIndex = len(self.actions) - 1
-		self.pageBox.insertItem(self.actionIndex, f'Page {str(self.actionIndex).rjust(2, "0")}')
-		self.pageBox.setCurrentIndex(self.actionIndex)
-
-		self.repaintPage()
-		self.pageBox.currentIndexChanged.connect(self.onPageBoxChanged)
-	# 重绘页面
-	def repaintPage(self) -> None:
-		if self.actionIndex < 0:
-			return
-		# 先禁用全部属性，再根据动画类型启用对应属性
-		self.disableProperty()
-		# 启用像素点，设置颜色
-		action = self.actions[self.actionIndex]
-		for i, p in enumerate(self.pixels):
-			p.setDisabled(False)
-			if i < len(action['colors']):
-				setPushButtonColor(p, QColor(action['colors'][i]))
-			else:
-				raise ValueError('Invalid action length')
-		# 根据动画类型启用对应属性
-		self.colorButton.setDisabled(False)
-		self.spinBox_colorH.setDisabled(False)
-		self.spinBox_colorS.setDisabled(False)
-		self.spinBox_colorV.setDisabled(False)
-		self.clearButton.setDisabled(False)
-		self.sameButton.setDisabled(False)
-		self.fillButton.setDisabled(False)
-		self.typeBox.setDisabled(False)
-
-		if action['type'] == 'Solid':
-			self.spinBox_lengthy.setDisabled(False)
-
-			self.typeBox.setCurrentIndex(0)
-			self.spinBox_lengthy.setValue(action['lengthy'])
-		elif action['type'] == 'Fading':
-			self.spinBox_sectionSt.setDisabled(False)
-			self.spinBox_sectionEd.setDisabled(False)
-			self.spinBox_sectionSp.setDisabled(False)
-			self.spinBox_interval.setDisabled(False)
-
-			self.typeBox.setCurrentIndex(1)	
-			self.spinBox_sectionSt.setValue(action['section'][0])
-			self.spinBox_sectionEd.setValue(action['section'][1])
-			self.spinBox_sectionSp.setValue(action['section'][2])
-			self.spinBox_interval.setValue(action['interval'])
-		elif action['type'] == 'Cycle':
-			self.spinBox_interval.setDisabled(False)
-			self.spinBox_times.setDisabled(False)
-			self.directionButton.setDisabled(False)
-
-			self.typeBox.setCurrentIndex(2)
-			self.spinBox_interval.setValue(action['interval'])
-			self.spinBox_times.setValue(action['times'])
-			self.directionButton.setChecked(action['isUp'])
-		elif action['type'] == 'Floating':
-			self.spinBox_interval.setDisabled(False)
-			self.directionButton.setDisabled(False)
-
-			self.typeBox.setCurrentIndex(3)
-			self.spinBox_interval.setValue(action['interval'])
-			self.directionButton.setChecked(action['isUp'])
-		elif action['type'] == 'Growing':
-			self.spinBox_interval.setDisabled(False)
-			self.directionButton.setDisabled(False)
-
-			self.typeBox.setCurrentIndex(4)
-			self.spinBox_interval.setValue(action['interval'])
-			self.directionButton.setChecked(action['isUp'])
-		else:
-			raise ValueError('Invalid action type')
-	# 禁用全部属性
-	def disableProperty(self) -> None:
-		for p in self.pixels_1 + self.pixels_2:
-			p.setDisabled(True)
-		self.colorButton.setDisabled(True)
-		self.spinBox_colorH.setDisabled(True)
-		self.spinBox_colorS.setDisabled(True)
-		self.spinBox_colorV.setDisabled(True)
-		self.clearButton.setDisabled(True)
-		self.sameButton.setDisabled(True)
-		self.fillButton.setDisabled(True)
-		self.typeBox.setDisabled(True)
-		self.directionButton.setDisabled(True)
-		self.spinBox_lengthy.setDisabled(True)
-		self.spinBox_interval.setDisabled(True)
-		self.spinBox_times.setDisabled(True)
-		self.spinBox_sectionSt.setDisabled(True)
-		self.spinBox_sectionEd.setDisabled(True)
-		self.spinBox_sectionSp.setDisabled(True)
 	# 获取动画结果，将 QColor 转换为对应字符串
 	def actionsOutcome(self) -> list:
 		actionsRes = deepcopy(self.actions)
@@ -294,63 +139,11 @@ class MainWindow(Ui_MainWindow):
 		setPushButtonColor(self.colorButton, self.painterColor)
 
 	# ==================== 事件 ====================
-	# 属性变化
-	def onPropertyChange(self, p: any, v: any) -> None:
-		if self.actionIndex < 0:
-			return
-		
-		action = self.actions[self.actionIndex]
-
-		if p == self.spinBox_lengthy:
-			action['lengthy'] = v
-		elif p == self.spinBox_interval:
-			action['interval'] = v
-		elif p == self.spinBox_times:
-			action['times'] = v
-		elif p == self.spinBox_sectionSt:
-			action['section'][0] = v
-		elif p == self.spinBox_sectionEd:
-			action['section'][1] = v
-		elif p == self.spinBox_sectionSp:
-			action['section'][2] = v
-		elif p == self.directionButton:
-			action['isUp'] = v
-		elif p == self.typeBox:
-			action['type'] = self.typeBox.currentText()
-			colors = action['colors']
-			action = deepcopy(self.defaultSolidAction)    if action['type'] == 'Solid'    else \
-			         deepcopy(self.defaultFadingAction)   if action['type'] == 'Fading'   else \
-					 deepcopy(self.defaultCycleAction)    if action['type'] == 'Cycle'    else \
-					 deepcopy(self.defaultFloatingAction) if action['type'] == 'Floating' else \
-					 deepcopy(self.defaultGrowingAction)  if action['type'] == 'Growing'  else \
-					 None
-			if action is None:
-				raise ValueError('Invalid action type')
-			
-			action['colors'] = colors
-			self.actions[self.actionIndex] = action
-			
-			self.repaintPage() # type 变化时重新绘制页面
-		else:
-			raise ValueError('Invalid property')
-	# 换页
-	def onPageBoxChanged(self, index: int) -> None:
-		text = self.pageBox.currentText()
-		if text == '<new>':
-			self.addPage()
-		else:
-			self.actionIndex = index
-			self.repaintPage()
 	# 选择画笔颜色
 	def onColorButtonClicked(self) -> None:
 		w = ColorDialog(self.painterColor, 'Choose Painter Color', self.centralwidget, enableAlpha=False)
 		w.colorChanged.connect(self.onPainterColorChanged)
 		w.exec()
-	# 设置本页颜色为上一页颜色
-	def onColorSameButtonClicked(self) -> None:
-		if self.actionIndex > 0:
-			self.actions[self.actionIndex]['colors'] = deepcopy(self.actions[self.actionIndex - 1]['colors'])
-			self.repaintPage()
 	# 颜色快速填充
 	def onColorFillButtonClicked(self) -> None:
 		for i in range(len(self.actions[self.actionIndex]['colors'])):
