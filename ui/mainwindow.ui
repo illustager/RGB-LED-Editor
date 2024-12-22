@@ -2853,164 +2853,6 @@ border-radius: 35px;  border: 1px groove gray;</string>
      </property>
     </widget>
    </widget>
-   <widget class="CompactSpinBox" name="spinBox_lengthy">
-    <property name="geometry">
-     <rect>
-      <x>500</x>
-      <y>250</y>
-      <width>81</width>
-      <height>21</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="BodyLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>440</x>
-      <y>250</y>
-      <width>101</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Lengthy</string>
-    </property>
-   </widget>
-   <widget class="CompactSpinBox" name="spinBox_times">
-    <property name="geometry">
-     <rect>
-      <x>501</x>
-      <y>330</y>
-      <width>81</width>
-      <height>21</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="BodyLabel" name="label_2">
-    <property name="geometry">
-     <rect>
-      <x>441</x>
-      <y>330</y>
-      <width>101</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Times</string>
-    </property>
-   </widget>
-   <widget class="CompactSpinBox" name="spinBox_interval">
-    <property name="geometry">
-     <rect>
-      <x>500</x>
-      <y>290</y>
-      <width>81</width>
-      <height>21</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="BodyLabel" name="label_3">
-    <property name="geometry">
-     <rect>
-      <x>440</x>
-      <y>290</y>
-      <width>101</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Interval</string>
-    </property>
-   </widget>
-   <widget class="SwitchButton" name="directionButton">
-    <property name="geometry">
-     <rect>
-      <x>500</x>
-      <y>500</y>
-      <width>115</width>
-      <height>19</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-   </widget>
-   <widget class="BodyLabel" name="label_4">
-    <property name="geometry">
-     <rect>
-      <x>440</x>
-      <y>470</y>
-      <width>101</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Direction</string>
-    </property>
-   </widget>
-   <widget class="ComboBox" name="pageBox">
-    <property name="geometry">
-     <rect>
-      <x>440</x>
-      <y>600</y>
-      <width>121</width>
-      <height>31</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="ComboBox" name="typeBox">
-    <property name="geometry">
-     <rect>
-      <x>440</x>
-      <y>550</y>
-      <width>121</width>
-      <height>31</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="CompactSpinBox" name="spinBox_sectionSt">
-    <property name="geometry">
-     <rect>
-      <x>501</x>
-      <y>370</y>
-      <width>81</width>
-      <height>21</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="BodyLabel" name="label_5">
-    <property name="geometry">
-     <rect>
-      <x>441</x>
-      <y>370</y>
-      <width>101</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Section</string>
-    </property>
-   </widget>
-   <widget class="CompactSpinBox" name="spinBox_sectionEd">
-    <property name="geometry">
-     <rect>
-      <x>501</x>
-      <y>400</y>
-      <width>81</width>
-      <height>21</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="CompactSpinBox" name="spinBox_sectionSp">
-    <property name="geometry">
-     <rect>
-      <x>501</x>
-      <y>430</y>
-      <width>81</width>
-      <height>21</height>
-     </rect>
-    </property>
-   </widget>
    <widget class="PushButton" name="resultButton">
     <property name="geometry">
      <rect>
@@ -3022,19 +2864,6 @@ border-radius: 35px;  border: 1px groove gray;</string>
     </property>
     <property name="text">
      <string>Copy as code</string>
-    </property>
-   </widget>
-   <widget class="PushButton" name="sameButton">
-    <property name="geometry">
-     <rect>
-      <x>510</x>
-      <y>20</y>
-      <width>71</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Same</string>
     </property>
    </widget>
    <widget class="Line" name="line">
@@ -3050,7 +2879,7 @@ border-radius: 35px;  border: 1px groove gray;</string>
      <enum>Qt::Vertical</enum>
     </property>
    </widget>
-   <widget class="PushButton" name="fillButton">
+   <widget class="PushButton" name="reverseButton">
     <property name="geometry">
      <rect>
       <x>510</x>
@@ -3060,7 +2889,7 @@ border-radius: 35px;  border: 1px groove gray;</string>
      </rect>
     </property>
     <property name="text">
-     <string>Fill</string>
+     <string>Reverse</string>
     </property>
    </widget>
    <widget class="CompactSpinBox" name="spinBox_colorH">
@@ -3135,14 +2964,40 @@ border-radius: 35px;  border: 1px groove gray;</string>
    <widget class="PushButton" name="clearButton">
     <property name="geometry">
      <rect>
-      <x>560</x>
+      <x>450</x>
       <y>220</y>
-      <width>21</width>
-      <height>21</height>
+      <width>131</width>
+      <height>31</height>
      </rect>
     </property>
     <property name="text">
-     <string>X</string>
+     <string>Clear</string>
+    </property>
+   </widget>
+   <widget class="PushButton" name="fillButton">
+    <property name="geometry">
+     <rect>
+      <x>510</x>
+      <y>20</y>
+      <width>71</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Fill</string>
+    </property>
+   </widget>
+   <widget class="Line" name="line_2">
+    <property name="geometry">
+     <rect>
+      <x>430</x>
+      <y>260</y>
+      <width>161</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
     </property>
    </widget>
   </widget>
@@ -3183,11 +3038,6 @@ border-radius: 35px;  border: 1px groove gray;</string>
    <header location="global">qfluentwidgets</header>
   </customwidget>
   <customwidget>
-   <class>SwitchButton</class>
-   <extends>QRadioButton</extends>
-   <header location="global">qfluentwidgets</header>
-  </customwidget>
-  <customwidget>
    <class>BodyLabel</class>
    <extends>QLabel</extends>
    <header location="global">qfluentwidgets</header>
@@ -3195,11 +3045,6 @@ border-radius: 35px;  border: 1px groove gray;</string>
   <customwidget>
    <class>CompactSpinBox</class>
    <extends>QSpinBox</extends>
-   <header location="global">qfluentwidgets</header>
-  </customwidget>
-  <customwidget>
-   <class>ComboBox</class>
-   <extends>QComboBox</extends>
    <header location="global">qfluentwidgets</header>
   </customwidget>
  </customwidgets>
