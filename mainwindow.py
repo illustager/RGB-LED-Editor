@@ -8,7 +8,14 @@ import json
 from copy import deepcopy
 
 # 将动画转换为 C++ 代码
-from convertor import actionsConvert
+def colorsConvert(colors: list) -> str:
+	res = '{'
+	for i in range(len(colors)):
+		res += f'\"{colors[i].name()}\"'
+		if i != len(colors) - 1:
+			res += ', '
+	res += '}'
+	return res
 
 # 设置按钮颜色
 def setPushButtonColor(button: PushButton, color: QColor) -> None:
@@ -21,48 +28,21 @@ def setPushButtonColor(button: PushButton, color: QColor) -> None:
 class MainWindow(Ui_MainWindow):
 	# ==================== 初始化 ====================
 	def __init__(self, window: QMainWindow):
-		# -------------------- 成员变量 --------------------
-		# 常量
-		self.defaultColor = QColor('#FFFFFF')
-		
-		self.defaultSolidAction = {
-			'type': 'Solid',
-			'colors': [QColor(self.defaultColor) for _ in range(56)],
-			'lengthy': 50,
-		}
-		self.defaultFadingAction = {
-			'type': 'Fading',
-			'colors': [QColor(self.defaultColor) for _ in range(56)],
-			'section': [0, 100, 5],
-			'interval': 1,
-		}
-		self.defaultCycleAction = {
-			'type': 'Cycle',
-			'colors': [QColor(self.defaultColor) for _ in range(56)],
-			'interval': 2,
-			'times': 56,
-			'isUp': True
-		}
-		self.defaultFloatingAction = {
-			'type': 'Floating',
-			'colors': [QColor(self.defaultColor) for _ in range(56)],
-			'interval': 2,
-			'isUp': True,
-		}
-		self.defaultGrowingAction = {
-			'type': 'Growing',
-			'colors': [QColor(self.defaultColor) for _ in range(56)],
-			'interval': 1,
-			'isUp': True,
-		}
-		# 变量
-		self.painterColor = QColor(self.defaultColor)
-		
-		self.actions = []
-		self.actionIndex = -1 # 当前操作的页面索引，亦即当前的动画索引
-
 		# -------------------- 设置 UI --------------------
 		self.setupUi(window)
+
+		# -------------------- 成员变量 --------------------
+		# 常量
+		self.DEFAULT_COLOR = QColor('#FFFFFF')
+		self.PIXEL_NUM = len(self.pixels)
+		
+		# 变量
+		self.painterColor = self.DEFAULT_COLOR
+		self.colors = [QColor(self.DEFAULT_COLOR) for _ in range(self.PIXEL_NUM)]
+
+		# -------------------- 其它设置 --------------------
+		setPushButtonColor(self.colorButton, self.painterColor)
+		self.onColorFillButtonClicked()
 
 		# -------------------- 事件绑定 --------------------
 		# 导入导出 JSON
@@ -107,8 +87,6 @@ class MainWindow(Ui_MainWindow):
 		window.setFixedSize(window.size())
 		window.setWindowTitle('RGB Editor')
 		window.setWindowIcon(FluentIcon.PALETTE.icon())
-		# 按钮颜色
-		setPushButtonColor(self.colorButton, self.defaultColor)
 		# 属性设置 UI
 		self.spinBox_colorH.setMaximum(359)
 		self.spinBox_colorH.setMinimum(-359)
@@ -121,14 +99,6 @@ class MainWindow(Ui_MainWindow):
 		self.spinBox_colorV.setValue(0)
 
 	# ==================== 方法 ====================
-	# 获取动画结果，将 QColor 转换为对应字符串
-	def actionsOutcome(self) -> list:
-		actionsRes = deepcopy(self.actions)
-
-		for i in range(len(actionsRes)):
-			actionsRes[i]['colors'] = [c.name() for c in self.actions[i]['colors']]
-		
-		return actionsRes
 	# 画笔颜色渐变
 	def colorGradient(self) -> None:
 		h, s, v, a = self.painterColor.getHsv()
@@ -137,7 +107,10 @@ class MainWindow(Ui_MainWindow):
 		v = (v + self.spinBox_colorV.value()) % 256
 		self.painterColor.setHsv(h, s, v, a)
 		setPushButtonColor(self.colorButton, self.painterColor)
-
+	# 根据 colors 更新像素颜色
+	def updatePixelsColor(self) -> None:
+		for i in range(self.PIXEL_NUM):
+			setPushButtonColor(self.pixels[i], self.colors[i])
 	# ==================== 事件 ====================
 	# 选择画笔颜色
 	def onColorButtonClicked(self) -> None:
@@ -146,9 +119,9 @@ class MainWindow(Ui_MainWindow):
 		w.exec()
 	# 颜色快速填充
 	def onColorFillButtonClicked(self) -> None:
-		for i in range(len(self.actions[self.actionIndex]['colors'])):
-			self.actions[self.actionIndex]['colors'][i] = QColor(self.painterColor)
-		self.repaintPage()
+		for i in range(self.PIXEL_NUM):
+			self.colors[i] = self.painterColor
+		self.updatePixelsColor()
 	# 清空颜色渐变属性
 	def onColorClearButtonClicked(self) -> None:
 		self.spinBox_colorH.setValue(0)
@@ -156,8 +129,7 @@ class MainWindow(Ui_MainWindow):
 		self.spinBox_colorV.setValue(0)
 	# 结果复制, 得到 C++ 代码
 	def onResultButtonClicked(self) -> None:
-		actionsRes = self.actionsOutcome()
-		res = actionsConvert(actionsRes)
+		res = colorsConvert(deepcopy(self.colors))
 		QApplication.clipboard().setText(res)
 	# 改变画笔颜色
 	def onPainterColorChanged(self, color: QColor) -> None:
@@ -166,7 +138,7 @@ class MainWindow(Ui_MainWindow):
 	# 像素颜色改变
 	def onPixelColorChanged(self, button: PushButton, index: int) -> None:
 		setPushButtonColor(button, self.painterColor)
-		self.actions[self.actionIndex]['colors'][index] = QColor(self.painterColor)
+		self.colors[index] = self.painterColor
 		self.colorGradient()
 	# 导入 JSON
 	def onImportTriggered(self) -> None:
@@ -182,13 +154,10 @@ class MainWindow(Ui_MainWindow):
 		
 		try:
 			with open(filepath, 'r') as f:
-				import_actions = json.load(f)
+				import_colors = json.load(f)
 			
-			for i in range(len(import_actions)):
-				import_actions[i]['colors'] = [QColor(c) for c in import_actions[i]['colors']]
-				self.addPage(import_actions[i])
-
-			self.repaintPage()
+			self.colors = [QColor(c) for c in import_colors['colors']]
+			self.updatePixelsColor()
 		except Exception as e:
 			raise e
 	# 导出 JSON
@@ -202,9 +171,11 @@ class MainWindow(Ui_MainWindow):
 
 		if not filepath:
 			return
+		
+		res = {'colors': [c.name() for c in self.colors]}
 
 		try:
 			with open(filepath, 'w') as f:
-				json.dump(self.actionsOutcome(), f, indent=4)
+				json.dump(res, f, indent=4)
 		except Exception as e:
 			raise e
