@@ -3000,6 +3000,33 @@ border-radius: 35px;  border: 1px groove gray;</string>
      <enum>Qt::Horizontal</enum>
     </property>
    </widget>
+   <widget class="ComboBox" name="comboBox_uart">
+    <property name="geometry">
+     <rect>
+      <x>430</x>
+      <y>290</y>
+      <width>101</width>
+      <height>31</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="PushButton" name="pushButton_uart">
+    <property name="geometry">
+     <rect>
+      <x>540</x>
+      <y>290</y>
+      <width>51</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">
+color: #FF0000;</string>
+    </property>
+    <property name="text">
+     <string>Conn</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -3045,6 +3072,11 @@ border-radius: 35px;  border: 1px groove gray;</string>
   <customwidget>
    <class>CompactSpinBox</class>
    <extends>QSpinBox</extends>
+   <header location="global">qfluentwidgets</header>
+  </customwidget>
+  <customwidget>
+   <class>ComboBox</class>
+   <extends>QComboBox</extends>
    <header location="global">qfluentwidgets</header>
   </customwidget>
  </customwidgets>

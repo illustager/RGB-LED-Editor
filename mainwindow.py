@@ -7,6 +7,9 @@ from qfluentwidgets import ColorDialog, FluentIcon, PushButton
 import json
 from copy import deepcopy
 
+from serial import Serial
+import serial.tools.list_ports as SerialListPorts
+
 # 将动画转换为 C++ 代码
 def colorsConvert(colors: list) -> str:
 	res = '{'
@@ -39,10 +42,10 @@ class MainWindow(Ui_MainWindow):
 		# 变量
 		self.painterColor = QColor(self.DEFAULT_COLOR)
 		self.colors = [QColor(self.DEFAULT_COLOR) for _ in range(self.PIXEL_NUM)]
+		self.serial = None
 
 		# -------------------- 其它设置 --------------------
-		setPushButtonColor(self.colorButton, self.painterColor)
-		self.onColorFillButtonClicked()
+		self.updatePixelsColor()
 
 		# -------------------- 事件绑定 --------------------
 		# 导入导出 JSON
@@ -58,6 +61,9 @@ class MainWindow(Ui_MainWindow):
 		# 像素着色
 		for i, p in enumerate(self.pixels):
 			p.mousePressEvent = lambda _, p=p, i=i: self.onPixelColorChanged(p, i)
+		# 串口
+		self.comboBox_uart.clicked.connect(self.onUartComboBoxClicked)
+		self.pushButton_uart.clicked.connect(self.onUartButtonClicked)
 
 	def setupUi(self, window: QMainWindow) -> None:
 		super().setupUi(window) # 依照 UI 设计文件设置 UI
@@ -98,6 +104,8 @@ class MainWindow(Ui_MainWindow):
 		self.spinBox_colorV.setMaximum(255)
 		self.spinBox_colorV.setMinimum(-255)
 		self.spinBox_colorV.setValue(0)
+		# 串口连接
+		self.pushButton_uart.setStyleSheet('background-color: #FF0000; color: #FFFFFF;')
 
 	# ==================== 方法 ====================
 	# 画笔颜色渐变
@@ -184,3 +192,22 @@ class MainWindow(Ui_MainWindow):
 				json.dump(res, f, indent=4)
 		except Exception as e:
 			raise e
+	# 串口选择
+	def onUartComboBoxClicked(self) -> None:
+		ports = SerialListPorts.comports()
+		self.comboBox_uart.clear()
+		for port in ports:
+			self.comboBox_uart.addItem(port.device)
+	# 串口连接
+	def onUartButtonClicked(self) -> None:
+		if self.serial is None:
+			port = self.comboBox_uart.currentText()
+			try:
+				self.serial = Serial(port, 115200)
+				self.pushButton_uart.setStyleSheet('background-color: #00FF00; color: #000000;')
+			except Exception:
+				pass
+		else:
+			self.serial.close()
+			self.serial = None
+			self.pushButton_uart.setStyleSheet('background-color: #FF0000; color: #FFFFFF;')
