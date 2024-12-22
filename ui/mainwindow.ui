@@ -2879,7 +2879,7 @@ border-radius: 35px;  border: 1px groove gray;</string>
      <enum>Qt::Vertical</enum>
     </property>
    </widget>
-   <widget class="PushButton" name="fillButton">
+   <widget class="PushButton" name="reverseButton">
     <property name="geometry">
      <rect>
       <x>510</x>
@@ -2889,7 +2889,7 @@ border-radius: 35px;  border: 1px groove gray;</string>
      </rect>
     </property>
     <property name="text">
-     <string>Fill</string>
+     <string>Reverse</string>
     </property>
    </widget>
    <widget class="CompactSpinBox" name="spinBox_colorH">
@@ -2974,17 +2974,17 @@ border-radius: 35px;  border: 1px groove gray;</string>
      <string>X</string>
     </property>
    </widget>
-   <widget class="Line" name="line_2">
+   <widget class="PushButton" name="fillButton">
     <property name="geometry">
      <rect>
-      <x>430</x>
-      <y>240</y>
-      <width>161</width>
-      <height>16</height>
+      <x>510</x>
+      <y>20</y>
+      <width>71</width>
+      <height>31</height>
      </rect>
     </property>
-    <property name="orientation">
-     <enum>Qt::Horizontal</enum>
+    <property name="text">
+     <string>Fill</string>
     </property>
    </widget>
   </widget>

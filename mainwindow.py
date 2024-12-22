@@ -37,7 +37,7 @@ class MainWindow(Ui_MainWindow):
 		self.PIXEL_NUM = len(self.pixels)
 		
 		# 变量
-		self.painterColor = self.DEFAULT_COLOR
+		self.painterColor = QColor(self.DEFAULT_COLOR)
 		self.colors = [QColor(self.DEFAULT_COLOR) for _ in range(self.PIXEL_NUM)]
 
 		# -------------------- 其它设置 --------------------
@@ -52,6 +52,7 @@ class MainWindow(Ui_MainWindow):
 		self.colorButton.clicked.connect(self.onColorButtonClicked)
 		self.fillButton.clicked.connect(self.onColorFillButtonClicked)
 		self.clearButton.clicked.connect(self.onColorClearButtonClicked)
+		self.reverseButton.clicked.connect(self.onColorReverseButtonClicked)
 		# 结果复制
 		self.resultButton.clicked.connect(self.onResultButtonClicked)
 		# 像素着色
@@ -127,6 +128,10 @@ class MainWindow(Ui_MainWindow):
 		self.spinBox_colorH.setValue(0)
 		self.spinBox_colorS.setValue(0)
 		self.spinBox_colorV.setValue(0)
+	# 颜色反转
+	def onColorReverseButtonClicked(self) -> None:
+		self.colors = deepcopy(self.colors[::-1])
+		self.updatePixelsColor()
 	# 结果复制, 得到 C++ 代码
 	def onResultButtonClicked(self) -> None:
 		res = colorsConvert(deepcopy(self.colors))
@@ -138,7 +143,7 @@ class MainWindow(Ui_MainWindow):
 	# 像素颜色改变
 	def onPixelColorChanged(self, button: PushButton, index: int) -> None:
 		setPushButtonColor(button, self.painterColor)
-		self.colors[index] = self.painterColor
+		self.colors[index] = QColor(self.painterColor)
 		self.colorGradient()
 	# 导入 JSON
 	def onImportTriggered(self) -> None:
