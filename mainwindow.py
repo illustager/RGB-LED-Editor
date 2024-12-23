@@ -10,6 +10,8 @@ from copy import deepcopy
 from serial import Serial
 import serial.tools.list_ports as SerialListPorts
 
+from time import sleep
+
 # 将动画转换为 C++ 代码
 def colorsConvert(colors: list) -> str:
 	res = '{'
@@ -38,6 +40,7 @@ class MainWindow(Ui_MainWindow):
 		# 常量
 		self.DEFAULT_COLOR = QColor('#FFFFFF')
 		self.PIXEL_NUM = len(self.pixels)
+		self.DEFAULT_BAUDRATE = 115200
 		
 		# 变量
 		self.painterColor = QColor(self.DEFAULT_COLOR)
@@ -120,6 +123,44 @@ class MainWindow(Ui_MainWindow):
 	def updatePixelsColor(self) -> None:
 		for i in range(self.PIXEL_NUM):
 			setPushButtonColor(self.pixels[i], self.colors[i])
+			self.sendColors(i, self.colors[i])
+		self.sendStop()
+	# 串口连接
+	def uartConnect(self, port: str, baudrate: int) -> None:
+		self.uartDisconnect()
+		try:
+			self.serial = Serial(port, baudrate)
+			self.pushButton_uart.setStyleSheet('background-color: #00FF00; color: #000000;')
+			self.updatePixelsColor()
+		except Exception:
+			self.serial = None
+			self.pushButton_uart.setStyleSheet('background-color: #FF0000; color: #FFFFFF;')
+	# 串口断开
+	def uartDisconnect(self) -> None:
+		self.pushButton_uart.setStyleSheet('background-color: #FF0000; color: #FFFFFF;')
+
+		if self.serial is not None:
+			self.serial.close()
+			self.serial = None
+	# 串口发送数据
+	def sendColors(self, index: int, color: QColor) -> None:
+		if self.serial is None:
+			return
+		
+		i = index & 0xFF
+		r, g, b, _ = color.getRgb()
+		data = bytes([i, r, g, b])
+		try:
+			self.serial.write(data)
+			self.serial.flush()
+		except Exception:
+			self.uartDisconnect()
+		
+		sleep(0.001)
+	# 发送停止
+	def sendStop(self) -> None:
+		return
+
 	# ==================== 事件 ====================
 	# 选择画笔颜色
 	def onColorButtonClicked(self) -> None:
@@ -153,6 +194,8 @@ class MainWindow(Ui_MainWindow):
 		setPushButtonColor(button, self.painterColor)
 		self.colors[index] = QColor(self.painterColor)
 		self.colorGradient()
+		self.sendColors(index, self.painterColor)
+		self.sendStop()
 	# 导入 JSON
 	def onImportTriggered(self) -> None:
 		filepath, _ = QFileDialog.getOpenFileName(
@@ -201,13 +244,8 @@ class MainWindow(Ui_MainWindow):
 	# 串口连接
 	def onUartButtonClicked(self) -> None:
 		if self.serial is None:
-			port = self.comboBox_uart.currentText()
-			try:
-				self.serial = Serial(port, 115200)
-				self.pushButton_uart.setStyleSheet('background-color: #00FF00; color: #000000;')
-			except Exception:
-				pass
+			port = self.comboBox_uart.currentText() if self.comboBox_uart.count() > 0 else ''
+			baudrate = self.DEFAULT_BAUDRATE
+			self.uartConnect(port, baudrate)
 		else:
-			self.serial.close()
-			self.serial = None
-			self.pushButton_uart.setStyleSheet('background-color: #FF0000; color: #FFFFFF;')
+			self.uartDisconnect()
