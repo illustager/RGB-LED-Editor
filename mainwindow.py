@@ -170,7 +170,8 @@ class MainWindow(Ui_MainWindow):
 	# 颜色快速填充
 	def onColorFillButtonClicked(self) -> None:
 		for i in range(self.PIXEL_NUM):
-			self.colors[i] = self.painterColor
+			self.colors[i] = QColor(self.painterColor)
+			self.colorGradient()
 		self.updatePixelsColor()
 	# 清空颜色渐变属性
 	def onColorClearButtonClicked(self) -> None:
